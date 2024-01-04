@@ -59,7 +59,13 @@ elasticsearch exited with code 78
 以下要求和建议适用于在生产中的Docker中运行Elasticearch。
 将vm.max_map_count至少设置为262144要用于生产，必须将vm.max_map_count内核设置至少设置为262144。
 如何设置vm.max_map_count取决于您的平台。
+windows系统使用下面的命令解决：
 ```
 wsl -d docker-desktop
 sysctl -w vm.max_map_count=262144
+```
+unix/linux系统使用下面的命令解决：
+```
+echo "vm.max_map_count=262144" >> /etc/sysctl.conf
+sysctl -p
 ```
