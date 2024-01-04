@@ -1,0 +1,62 @@
+version: "3"
+services:
+  sonar-postgres:
+    image: postgres:14.4
+    networks:
+      - sonar-network
+    container_name: sonar-postgres
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=sonar
+      - POSTGRES_PASSWORD=sonar@123
+      - TZ=Asia/Shanghai
+  sonarqube:
+    image: sonarqube:8.9-community
+    container_name: sonarqube
+    networks:
+      - sonar-network
+    environment:
+      - TZ=Asia/Shanghai
+      - SONARQUBE_JDBC_USERNAME=sonar
+      - SONARQUBE_JDBC_PASSWORD=sonar@123
+      - SONARQUBE_JDBC_URL=jdbc:postgresql://sonar-postgres:5432/sonar
+    volumes:
+      - "./sonar/data:/opt/sonarqube/data"
+      - "./sonar/logs:/opt/sonarqube/logs"
+      - "./sonar/extensions:/opt/sonarqube/extensions"
+    ports:
+      - "9000:9000"
+    depends_on:
+      - sonar-postgres
+  gitlab:
+    image: gitlab/gitlab-ce
+    hostname: gitlab.zhu.com
+    container_name: gitlab
+    restart: always
+    privileged: true
+    ports:
+      - "8082:443"
+      - "80:80"
+      - "8084:22"
+    volumes:
+      - ./gitlab/config:/etc/gitlab:rw
+      - ./gitlab/logs:/var/log/gitlab:rw
+      - ./gitlab/data:/var/opt/gitlab:rw
+  gitlab-runner:
+    image: 'gitlab/gitlab-runner'
+    container_name: gitlab-runner
+    restart: always
+    volumes:
+        - ./gitlab-runner/config:/etc/gitlab-runner 
+  jenkins:
+    image: jenkins/jenkins
+    container_name: jenkins
+    ports:
+      - "10240:8080"
+      - "20142:50000"
+    volumes:
+      - ./jenkins/home:/var/jenkins_home
+networks:
+  sonar-network:
+    driver: bridge
