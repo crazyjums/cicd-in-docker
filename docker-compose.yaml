@@ -25,6 +25,7 @@ services:
       - "./sonar/data:/opt/sonarqube/data"
       - "./sonar/logs:/opt/sonarqube/logs"
       - "./sonar/extensions:/opt/sonarqube/extensions"
+      - "./sonar/conf:/opt/sonarqube/conf:rw"
     ports:
       - "9000:9000"
     depends_on:
